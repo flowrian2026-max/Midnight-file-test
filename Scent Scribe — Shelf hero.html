@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Scent Scribe — Shelf hero</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;1,6..96,400&family=Manrope:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16101F;--ink2:#2A1D38;--amber:#E2A24F;--bone:#EFE6D8;--smoke:#A194B5;--serif:"Bodoni Moda","Didot",Georgia,serif;--sans:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%}
+body{margin:0;height:100%;background:var(--ink);color:var(--bone);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow:hidden}
+.hero{position:relative;height:100%;min-height:560px;overflow:hidden;touch-action:pan-y;background:radial-gradient(70% 60% at 50% 62%,var(--ink2),var(--ink) 75%);--H:min(44vh,62vw)}
+nav{position:absolute;top:0;left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:calc(env(safe-area-inset-top,0px) + 24px) 5vw 0;font-size:14px;pointer-events:none}
+nav>*{pointer-events:auto}
+nav a{color:var(--bone);text-decoration:none;opacity:.85}
+nav .logo{font-family:var(--serif);font-size:20px;opacity:1}
+nav ul{display:flex;gap:28px;list-style:none;margin:0;padding:0}
+h1{position:absolute;z-index:4;left:5vw;top:calc(env(safe-area-inset-top,0px) + 80px);margin:0;font-family:var(--serif);font-weight:400;font-size:clamp(40px,7vw,104px);line-height:.95;letter-spacing:-.02em;text-shadow:0 2px 24px rgba(22,16,31,.7);pointer-events:none}
+h1 em{display:block;color:var(--amber);padding-left:.8em}
+.shelf{position:absolute;left:0;right:0;top:calc(50% - var(--H)/2 + 4vh);height:var(--H);perspective:1800px;z-index:1;
+-webkit-mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(90deg,transparent,#000 14%,#000 86%,transparent)}
+.stage{position:absolute;left:50%;top:50%;transform-style:preserve-3d}
+.b{position:absolute;width:calc(var(--H)*.5);height:var(--H);left:calc(var(--H)*-.25);top:calc(var(--H)*-.5);cursor:pointer;will-change:transform}
+.b svg{width:100%;height:100%;display:block;overflow:visible}
+.floor{position:absolute;left:10%;right:10%;top:calc(50% + var(--H)/2 + 4vh);height:1px;background:linear-gradient(90deg,transparent,rgba(239,230,216,.35),transparent);z-index:1}
+canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.cap{position:absolute;z-index:4;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 34px);display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;pointer-events:none;text-shadow:0 2px 18px rgba(22,16,31,.8)}
+.m{overflow:hidden;padding:2px 0}
+.cap .t{font-family:var(--serif);font-size:clamp(24px,3vw,34px);line-height:1.1;display:block}
+.cap .h{font-size:13px;color:var(--amber);display:block;letter-spacing:.04em}
+.cap .n{font-size:14px;color:var(--smoke);display:block}
+.arr{position:absolute;z-index:5;bottom:calc(env(safe-area-inset-bottom,0px) + 40px);width:44px;height:44px;border-radius:50%;border:1px solid rgba(239,230,216,.4);background:rgba(22,16,31,.4);color:var(--bone);cursor:pointer;display:grid;place-items:center}
+.arr:hover,.arr:focus-visible{background:var(--amber);color:#2a1a08;border-color:var(--amber)}
+.arr.l{left:5vw}.arr.r{right:5vw}
+.hint{position:absolute;z-index:4;right:5vw;top:calc(env(safe-area-inset-top,0px) + 92px);font-size:13px;color:var(--smoke);text-align:right;pointer-events:none;max-width:22ch}
+.cta{position:absolute;z-index:5;left:5vw;top:calc(env(safe-area-inset-top,0px) + 80px + clamp(80px,14vw,200px))}
+.btn{display:inline-block;padding:13px 26px;border-radius:999px;background:var(--amber);color:#2a1a08;font-weight:500;font-size:14px;text-decoration:none}
+.btn:hover,.btn:focus-visible{background:#f0b765}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+@media (max-width:760px){nav ul{display:none}.hint{display:none}h1{top:calc(env(safe-area-inset-top,0px) + 76px)}.cta{display:none}.arr{bottom:calc(env(safe-area-inset-bottom,0px) + 110px)}.cap{bottom:calc(env(safe-area-inset-bottom,0px) + 22px)}.shelf{top:calc(50% - var(--H)/2 + 2vh)}.floor{top:calc(50% + var(--H)/2 + 2vh)}}
+@media (prefers-reduced-motion:reduce){canvas{display:none}}
+</style>
+</head>
+<body>
+<main class="hero" id="hero">
+  <nav aria-label="Main"><a class="logo" href="#">Scent Scribe</a><ul><li><a href="#">Shop</a></li><li><a href="#">Brands</a></li><li><a href="#">Scent families</a></li><li><a href="#">Journal</a></li></ul><a href="#">Bag (0)</a></nav>
+  <h1>Write your<em>signature.</em></h1>
+  <p class="hint">The glass is fogged. Wipe it with your finger or cursor.</p>
+  <div class="cta"><a class="btn" href="#">Shop the collection</a></div>
+  <section class="shelf" id="shelf" aria-label="Fragrance shelf"><div class="stage" id="stage"></div></section>
+  <div class="floor"></div>
+  <canvas id="fog"></canvas>
+  <button class="arr l" id="prev" aria-label="Previous fragrance"><svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M5 1 1 5l4 4M1 5h16"/></svg></button>
+  <button class="arr r" id="next" aria-label="Next fragrance"><svg width="18" height="10" viewBox="0 0 18 10" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M13 1l4 4-4 4M17 5H1"/></svg></button>
+  <div class="cap" aria-live="polite"><div class="m"><span class="t" id="ct"></span></div><div class="m"><span class="h" id="ch"></span></div><div class="m"><span class="n" id="cn"></span></div></div>
+</main>
+<script>
+(function(){
+var D=[
+{n:"Amber Ledger",h:"Amber",c:["#F2B866","#7A3E26"],s:0,t:"Resin, vanilla, warm woods"},
+{n:"Ink & Iris",h:"Floral",c:["#B7A4E0","#3B2A66"],s:1,t:"Iris, violet leaf, musk"},
+{n:"Night Cedar",h:"Woody",c:["#7FB5A0","#18382F"],s:2,t:"Cedar, vetiver, black tea"},
+{n:"Rose Quarto",h:"Floral",c:["#F0A3B4","#7A2640"],s:0,t:"Damask rose, pink pepper, patchouli"},
+{n:"Saffron Vellum",h:"Spicy",c:["#F6C76B","#A5481F"],s:1,t:"Saffron, cardamom, leather"},
+{n:"Smoke Folio",h:"Woody",c:["#B8BCC8","#2C3040"],s:2,t:"Incense, birch tar, oakmoss"},
+{n:"Citrus Errata",h:"Citrus",c:["#F4E27A","#C98A1E"],s:0,t:"Bergamot, yuzu, white tea"},
+{n:"Velvet Margin",h:"Amber",c:["#D69A7A","#4A1F2E"],s:1,t:"Plum, tonka, soft suede"}];
+var N=D.length,stage=document.getElementById('stage'),els=[];
+function svg(b,i){
+  var body=[ '<rect x="15" y="62" width="70" height="128" rx="9"/>','<rect x="22" y="50" width="56" height="140" rx="26"/>','<rect x="10" y="84" width="80" height="106" rx="40"/>'][b.s];
+  var top=[62,50,84][b.s];
+  return '<svg viewBox="0 0 100 200" aria-hidden="true"><defs><linearGradient id="l'+i+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="'+b.c[0]+'"/><stop offset="1" stop-color="'+b.c[1]+'"/></linearGradient><linearGradient id="g'+i+'" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".3" stop-color="#fff" stop-opacity=".04"/><stop offset="1" stop-color="#fff" stop-opacity=".16"/></linearGradient></defs>'
+  +'<ellipse cx="50" cy="194" rx="42" ry="4" fill="#000" opacity=".4"/>'
+  +'<g fill="url(#l'+i+')">'+body+'</g><g fill="url(#g'+i+')" stroke="#EFE6D8" stroke-opacity=".35">'+body+'</g>'
+  +'<rect x="42" y="'+(top-24)+'" width="16" height="26" rx="2" fill="#EFE6D8" fill-opacity=".85"/>'
+  +'<rect x="34" y="'+(top-56)+'" width="32" height="36" rx="4" fill="#E2A24F"/>'
+  +'<text x="50" y="'+(top+52)+'" text-anchor="middle" font-family="Bodoni Moda,serif" font-size="8" fill="#16101F">'+b.n.split(' ')[0]+'</text>'
+  +'<path d="M24 '+(top+14)+'v'+(b.s==2?36:60)+'" stroke="#fff" stroke-opacity=".5" stroke-width="2.4" stroke-linecap="round"/></svg>';
+}
+D.forEach(function(b,i){var e=document.createElement('div');e.className='b';e.innerHTML=svg(b,i);e.setAttribute('role','button');e.setAttribute('aria-label',b.n);
+  e.addEventListener('click',function(){var r=e._r;if(Math.abs(r)>.5)T=Math.round(T+r)});stage.appendChild(e);els.push(e)});
+
+var s=3,T=3,active=-1,H=400,reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+function measure(){H=document.getElementById('shelf').offsetHeight}
+function sm(x){return x*x*(3-2*x)}
+function B(r){return Math.abs(r)<1?(r+Math.sin(Math.PI*r)/Math.PI)/2:(r>0?.5:-.5)}
+function caption(i,dir){
+  var b=D[i],ids=[['ct',b.n],['ch',b.h+' family'],['cn',b.t]];
+  ids.forEach(function(p,k){var el=document.getElementById(p[0]);el.textContent=p[1];
+    if(!reduced&&el.animate)el.animate([{transform:'translateY('+(dir*105)+'%)'},{transform:'translateY(0)'}],{duration:650,delay:k*70,easing:'cubic-bezier(.2,.8,.2,1)',fill:'backwards'})});
+}
+var last=performance.now();
+function frame(now){
+  var dt=Math.min(.05,(now-last)/1000);last=now;
+  s+=(T-s)*(1-Math.exp(-(reduced?60:5)*dt));if(Math.abs(T-s)<1e-4)s=T;
+  var pitch=H*.34,extra=H*.42;
+  els.forEach(function(e,i){
+    var r=((i-s)%N+N)%N;if(r>N/2)r-=N;e._r=r;
+    var o=sm(Math.max(0,1-Math.abs(r))),x=r*pitch+extra*B(r),sgn=r>0?1:-1;
+    var ry=(1-o)*(Math.abs(r)<1?sgn*Math.abs(r):sgn)*-62;
+    var sc=1+o*.28,z=o*H*.25+(-Math.abs(r)*6);
+    e.style.transform='translate3d('+x+'px,'+(-o*H*.03)+'px,'+z+'px) rotateY('+ry+'deg) scale('+sc+')';
+    e.style.filter='brightness('+(.5+.5*o)+')';
+    e.style.zIndex=Math.round(100-Math.abs(r)*4);
+    e.style.visibility=Math.abs(r)>4.2?'hidden':'visible';
+  });
+  var a=((Math.round(s)%N)+N)%N;
+  if(a!==active){var dir=active<0?1:(T>=s?1:-1);active=a;caption(a,dir)}
+  fogFrame(now);
+  requestAnimationFrame(frame);
+}
+document.getElementById('prev').onclick=function(){T=Math.round(T)-1};
+document.getElementById('next').onclick=function(){T=Math.round(T)+1};
+addEventListener('keydown',function(e){if(e.key==='ArrowLeft')T=Math.round(T)-1;if(e.key==='ArrowRight')T=Math.round(T)+1});
+var wt;addEventListener('wheel',function(e){var d=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;T+=d/(H*.34)*.5;clearTimeout(wt);wt=setTimeout(function(){T=Math.round(T)},160)},{passive:true});
+
+/* fog */
+var cv=document.getElementById('fog'),cx=cv.getContext('2d'),tex=document.createElement('canvas'),W=0,Hh=0,dpr=1,px=null,py=null,intro=0;
+function buildFog(){
+  var hero=document.getElementById('hero');dpr=Math.min(1.5,devicePixelRatio||1);
+  W=hero.clientWidth;Hh=hero.clientHeight;cv.width=W*dpr;cv.height=Hh*dpr;tex.width=cv.width;tex.height=cv.height;
+  var t=tex.getContext('2d');t.fillStyle='rgba(120,104,150,.62)';t.fillRect(0,0,tex.width,tex.height);
+  for(var i=0;i<26;i++){var x=Math.random()*tex.width,y=Math.random()*tex.height,r=(120+Math.random()*260)*dpr,
+    g=t.createRadialGradient(x,y,0,x,y,r),l=Math.random()>.5;
+    g.addColorStop(0,l?'rgba(214,204,230,.45)':'rgba(70,54,100,.4)');g.addColorStop(1,'rgba(0,0,0,0)');t.fillStyle=g;t.fillRect(x-r,y-r,r*2,r*2)}
+  cx.globalCompositeOperation='source-over';cx.globalAlpha=1;cx.drawImage(tex,0,0);intro=performance.now();measure();
+}
+function brush(x,y,rad){
+  cx.globalCompositeOperation='destination-out';cx.globalAlpha=1;
+  var g=cx.createRadialGradient(x*dpr,y*dpr,0,x*dpr,y*dpr,rad*dpr);
+  g.addColorStop(0,'rgba(0,0,0,.95)');g.addColorStop(.55,'rgba(0,0,0,.55)');g.addColorStop(1,'rgba(0,0,0,0)');
+  cx.fillStyle=g;cx.beginPath();cx.arc(x*dpr,y*dpr,rad*dpr,0,6.2832);cx.fill();
+}
+function stroke(x,y){
+  var rad=Math.max(70,Math.min(W,Hh)*.1);
+  if(px!==null){var dx=x-px,dy=y-py,d=Math.hypot(dx,dy),n=Math.max(1,Math.ceil(d/(rad*.25)));for(var i=1;i<=n;i++)brush(px+dx*i/n,py+dy*i/n,rad)}
+  else brush(x,y,rad);
+  px=x;py=y;
+}
+var hero=document.getElementById('hero');
+hero.addEventListener('pointermove',function(e){var r=hero.getBoundingClientRect();stroke(e.clientX-r.left,e.clientY-r.top)});
+hero.addEventListener('pointerleave',function(){px=null});
+hero.addEventListener('pointerdown',function(e){var r=hero.getBoundingClientRect();px=null;stroke(e.clientX-r.left,e.clientY-r.top)});
+function fogFrame(now){
+  if(reduced)return;
+  var t=(now-intro)/2200;
+  if(t>0&&t<1){var e=1-Math.pow(1-t,3);brush(W*(.12+.76*e),Hh*.55+Math.sin(t*6.28)*Hh*.08,Math.min(W,Hh)*.16)}
+  cx.globalCompositeOperation='source-over';cx.globalAlpha=.014;cx.drawImage(tex,0,0);cx.globalAlpha=1;
+}
+buildFog();addEventListener('resize',buildFog);
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
