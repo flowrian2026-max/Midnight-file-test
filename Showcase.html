@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Showcase</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--p1:#2B0D3A;--p2:#3A0F4B;--p3:#4B1670;--p4:#541A7A;--p5:#5E1B8C;--p6:#6A1E8E;--p9:#340A3D;--p10:#1F0829;--fg:#f1e6f7;--gold:#d9bd7a;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fg:#f1e6f7}}
+:root[data-theme="dark"]{--fg:#f1e6f7}
+html,body{height:100%;margin:0;background:var(--p10);color:var(--fg);overflow:hidden;font-family:"Helvetica Neue",Arial,sans-serif}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.brand{position:fixed;left:2.4vw;top:calc(env(safe-area-inset-top,0px) + 2vw);font:600 clamp(16px,1.5vw,28px) "Cormorant Garamond",Georgia,serif;letter-spacing:.4em;pointer-events:none}
+.hint{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 4vh);text-align:center;font-size:clamp(10px,.75vw,14px);letter-spacing:.35em;color:#d8c4e8;pointer-events:none;transition:opacity .5s}
+.hint.off{opacity:0}
+#panel{position:fixed;top:0;right:0;bottom:0;width:min(34vw,520px);box-sizing:border-box;padding:calc(env(safe-area-inset-top,0px) + 7vh) 3vw 5vh;background:linear-gradient(180deg,rgba(43,13,58,.72),rgba(31,8,41,.86));backdrop-filter:blur(14px);border-left:1px solid var(--p6);transform:translateX(105%);transition:transform .9s cubic-bezier(.2,.8,.2,1);overflow:auto}
+#panel.on{transform:none}
+#panel h2{margin:0 0 .4em;font:600 clamp(30px,3.2vw,56px)/1.05 "Cormorant Garamond",Georgia,serif}
+#panel .tag{margin:0 0 2.4em;letter-spacing:.3em;font-size:11px;color:var(--gold)}
+#panel dl{margin:0 0 2em;display:grid;grid-template-columns:5.5em 1fr;gap:.9em 1em;font-size:14px}
+#panel dt{letter-spacing:.25em;font-size:11px;color:var(--gold);padding-top:.25em}
+#panel dd{margin:0}
+#panel p.d{line-height:1.8;font-size:14px;color:#dccbe8}
+.price{font:600 28px "Cormorant Garamond",Georgia,serif;margin:1.4em 0}
+button{font:inherit;color:var(--fg);background:transparent;border:1px solid var(--p6);letter-spacing:.3em;font-size:11px;padding:1.1em 2em;cursor:pointer;transition:background .3s}
+button:hover{background:var(--p5)}
+#back{border:0;padding:0;margin-bottom:3em;color:#d8c4e8}
+#back:hover{background:none;color:#fff}
+</style></head><body>
+<canvas id="c"></canvas>
+<div class="brand">YOUR BRAND</div>
+<div class="hint" id="hint">CLICK A FRAGRANCE TO APPROACH</div>
+<aside id="panel"><button id="back">← BACK</button><h2 id="pn"></h2><p class="tag" id="pt"></p><dl id="pl"></dl><p class="d" id="pd"></p><div class="price" id="pp"></div><button>ADD TO CART</button></aside>
+<div id="err" style="position:fixed;left:12px;right:12px;top:64px;color:#ffb3c7;font:12px monospace;white-space:pre-wrap;z-index:9;pointer-events:none"></div>
+<script>
+const SRCS=['https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js','https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'];
+const showErr=m=>{const e=document.getElementById('err');if(e.textContent.length<500)e.textContent+=m+'\n'};
+addEventListener('error',e=>showErr('Error: '+e.message+' (line '+e.lineno+')'));
+(function load(i){if(i>=SRCS.length){showErr('three.js failed to load');return}
+ const s=document.createElement('script');s.src=SRCS[i];s.onload=()=>{const m=document.createElement('script');m.text=document.getElementById('main').textContent;document.body.appendChild(m)};s.onerror=()=>load(i+1);document.head.appendChild(s)})(0);
+</script>
+<script id="main" type="text/plain">
+const DATA=[
+ {n:'Midnight Plum',t:'EAU DE PARFUM · 100 ML',notes:['Bergamot, Pink Pepper','Plum, Iris','Amber, Vanilla'],d:'A dark, velvety plum wrapped in iris and warm amber. Made for late evenings.',p:'$180',c:0x6A1E8E,k:0},
+ {n:'Dark Iris',t:'EAU DE PARFUM · 100 ML',notes:['Cardamom, Mandarin','Iris, Violet','Cedar, Musk'],d:'Powdery iris over cool violet and smooth cedar. Quiet, elegant, unforgettable.',p:'$195',c:0x541A7A,k:1},
+ {n:'Royal Purple',t:'PARFUM · 75 ML',notes:['Saffron, Lavender','Rose, Oud','Sandalwood, Tonka'],d:'Rich saffron and rose resting on a deep oud base. Bold and regal.',p:'$240',c:0x5E1B8C,k:2},
+ {n:'Plum Wine',t:'EAU DE PARFUM · 100 ML',notes:['Blackcurrant, Cinnamon','Plum, Jasmine','Patchouli, Vanilla'],d:'Sweet dark fruit and spice with a smooth, wine-like finish.',p:'$170',c:0x7a2a9a,k:3},
+ {n:'Shadow Grape',t:'EXTRAIT · 50 ML',notes:['Grape, Black Tea','Heliotrope, Leather','Vetiver, Amber'],d:'Juicy grape fading into smoky leather and vetiver. Deep and mysterious.',p:'$260',c:0x4B1670,k:4}];
+const N=DATA.length,R=4.6;
+const cv=document.getElementById('c'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.4;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x1F0829);scene.fog=new THREE.Fog(0x1F0829,11,34);
+const cam=new THREE.PerspectiveCamera(38,1,.1,100);
+
+/* environment (soft boxes) so glass and metal have something to reflect */
+const pm=new THREE.PMREMGenerator(renderer),es=new THREE.Scene();
+es.add(new THREE.Mesh(new THREE.SphereGeometry(50,32,16),new THREE.MeshBasicMaterial({color:0x1F0829,side:THREE.BackSide})));
+function panel(w,h,x,y,z,c,i){const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({color:new THREE.Color(c).multiplyScalar(i),side:THREE.DoubleSide}));m.position.set(x,y,z);m.lookAt(0,0,0);es.add(m)}
+panel(18,10,-20,14,18,0xffe2cf,6);panel(10,24,24,8,-6,0xb06cff,5);panel(30,6,0,26,0,0xffffff,4);panel(8,20,-26,6,-14,0x8a3ad0,4);panel(14,8,0,8,-26,0xff9ad5,2);
+scene.environment=pm.fromScene(es,.02).texture;
+
+/* lights */
+scene.add(new THREE.HemisphereLight(0x8a5ac0,0x1F0829,.7));
+const key=new THREE.SpotLight(0xfff0e6,3.4,40,.55,1,1);key.position.set(0,13,10);key.target.position.set(0,1,4.6);key.castShadow=true;key.shadow.mapSize.set(2048,2048);key.shadow.bias=-.0003;scene.add(key,key.target);
+const rim=new THREE.PointLight(0x8a3ad0,3,30);rim.position.set(0,5,-4);scene.add(rim);
+const warm=new THREE.PointLight(0xff9a7a,1.2,20);warm.position.set(-7,3,6);scene.add(warm);
+
+/* stage */
+const floor=new THREE.Mesh(new THREE.CircleGeometry(40,64),new THREE.MeshStandardMaterial({color:0x1F0829,roughness:.55,metalness:.4}));floor.rotation.x=-Math.PI/2;floor.position.y=-.21;floor.receiveShadow=true;scene.add(floor);
+const plat=new THREE.Mesh(new THREE.CylinderGeometry(6.5,6.7,.2,96),new THREE.MeshStandardMaterial({color:0x3A0F4B,roughness:.18,metalness:.75}));plat.position.y=-.1;plat.receiveShadow=true;scene.add(plat);
+const gold=new THREE.MeshStandardMaterial({color:0xd9bd7a,metalness:1,roughness:.28});
+const edge=new THREE.Mesh(new THREE.TorusGeometry(6.6,.035,12,128),gold);edge.rotation.x=Math.PI/2;scene.add(edge);
+
+/* bottles */
+const KINDS=[
+ {t:'box',h:.82,lz:.215,cr:.15},
+ {t:'lathe',pts:[[0,0],[.36,0],[.42,.12],[.43,.42],[.33,.7],[.15,.86],[.13,.95]],h:.95,lz:.43,cr:.13},
+ {t:'hex',h:.82,r:.38,lz:.33,cr:.16},
+ {t:'lathe',pts:[[0,0],[.2,.02],[.4,.14],[.5,.4],[.4,.66],[.2,.78],[.13,.82]],h:.82,lz:.5,cr:.13},
+ {t:'lathe',pts:[[0,0],[.26,0],[.3,.06],[.3,1.1],[.26,1.16],[.12,1.22]],h:1.22,lz:.3,cr:.12}];
+function latheGeo(pts,s,y0,sy){const v=pts.map(p=>new THREE.Vector2(p[0]*s,p[1]*sy+y0));return new THREE.LatheGeometry(new THREE.SplineCurve(v).getPoints(48).map(q=>new THREE.Vector2(Math.max(0,q.x),q.y)),64)}
+function boxGeo(s,sy){const w=.64,h=.82,r=.08,sh=new THREE.Shape();sh.moveTo(-w/2+r,0);sh.lineTo(w/2-r,0);sh.quadraticCurveTo(w/2,0,w/2,r);sh.lineTo(w/2,h-r);sh.quadraticCurveTo(w/2,h,w/2-r,h);sh.lineTo(-w/2+r,h);sh.quadraticCurveTo(-w/2,h,-w/2,h-r);sh.lineTo(-w/2,r);sh.quadraticCurveTo(-w/2,0,-w/2+r,0);const g=new THREE.ExtrudeGeometry(sh,{depth:.34,bevelEnabled:true,bevelSize:.045,bevelThickness:.045,bevelSegments:8,curveSegments:16});g.translate(0,0,-.17);g.scale(s,sy,s);return g}
+function label(name){const c=document.createElement('canvas');c.width=512;c.height=300;const x=c.getContext('2d');x.strokeStyle='rgba(217,189,122,.9)';x.lineWidth=3;x.strokeRect(14,14,484,272);x.fillStyle='#e8d29a';x.textAlign='center';x.font='600 54px Georgia,serif';x.fillText(name.split(' ')[0].toUpperCase(),256,140);x.font='400 28px Georgia,serif';x.fillText(name.split(' ').slice(1).join(' ').toUpperCase(),256,196);const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;t.anisotropy=8;return t}
+function makeBottle(d){const K=KINDS[d.k],g=new THREE.Group();
+ const glassM=new THREE.MeshPhysicalMaterial({color:0xf2e8ff,transmission:1,thickness:.9,ior:1.5,roughness:.03,metalness:0,envMapIntensity:1.5,attenuationColor:new THREE.Color(0xb48cff),attenuationDistance:3,clearcoat:1});
+ const liqM=new THREE.MeshPhysicalMaterial({color:d.c,roughness:.12,metalness:0,clearcoat:1,emissive:d.c,emissiveIntensity:.35,envMapIntensity:.8});
+ let body,liq,top=K.h;
+ if(K.t==='box'){body=new THREE.Mesh(boxGeo(1,1),glassM);liq=new THREE.Mesh(boxGeo(.8,.78),liqM);liq.position.set(0,.09,0);top=K.h+.045}
+ else if(K.t==='hex'){body=new THREE.Mesh(new THREE.CylinderGeometry(K.r*.92,K.r,K.h,6),glassM);body.position.y=K.h/2;body.rotation.y=Math.PI/6;liq=new THREE.Mesh(new THREE.CylinderGeometry(K.r*.74,K.r*.8,K.h*.74,6),liqM);liq.position.y=K.h*.4;liq.rotation.y=Math.PI/6}
+ else{body=new THREE.Mesh(latheGeo(K.pts,1,0,1),glassM);liq=new THREE.Mesh(latheGeo(K.pts,.84,.08,.8),liqM)}
+ body.castShadow=true;g.add(body,liq);
+ const cap=new THREE.Mesh(new THREE.CylinderGeometry(K.cr,K.cr,.3,48),d.k%2?new THREE.MeshStandardMaterial({color:0x0d0714,metalness:.9,roughness:.2}):gold);cap.position.y=top+.14;cap.castShadow=true;
+ const neck=new THREE.Mesh(new THREE.CylinderGeometry(K.cr*1.18,K.cr*1.18,.06,48),gold);neck.position.y=top+.01;
+ const lab=new THREE.Mesh(new THREE.PlaneGeometry(.34,.2),new THREE.MeshBasicMaterial({map:label(d.n),transparent:true,depthWrite:false}));lab.position.set(0,K.h*.45,K.lz+.004);
+ g.add(cap,neck,lab);return g}
+function makeStand(){const g=new THREE.Group(),dark=new THREE.MeshStandardMaterial({color:0x2B0D3A,roughness:.16,metalness:.6});
+ const col=new THREE.Mesh(new THREE.CylinderGeometry(.62,.72,1.2,64),dark);col.position.y=.6;col.castShadow=col.receiveShadow=true;
+ const topd=new THREE.Mesh(new THREE.CylinderGeometry(.74,.74,.06,64),gold);topd.position.y=1.23;topd.castShadow=true;
+ const base=new THREE.Mesh(new THREE.CylinderGeometry(.82,.86,.1,64),gold);base.position.y=.05;
+ const glow=new THREE.Mesh(new THREE.TorusGeometry(.67,.018,12,96),new THREE.MeshStandardMaterial({color:0x6A1E8E,emissive:0x8a3ad0,emissiveIntensity:.5}));glow.rotation.x=Math.PI/2;glow.position.y=.82;
+ g.add(col,topd,base,glow);g.userData.glow=glow;return g}
+
+const ring=new THREE.Group();scene.add(ring);const items=[];
+DATA.forEach((d,i)=>{const a=i/N*Math.PI*2,it=new THREE.Group();it.position.set(Math.sin(a)*R,0,Math.cos(a)*R);it.rotation.y=a;it.userData.idx=i;
+ const st=makeStand(),b=makeBottle(d);b.position.y=1.26;it.add(st,b);ring.add(it);items.push({g:it,b,glow:st.userData.glow})});
+
+/* dust */
+const dg=new THREE.BufferGeometry(),dp=new Float32Array(600);for(let i=0;i<600;i+=3){dp[i]=(Math.random()-.5)*20;dp[i+1]=Math.random()*7;dp[i+2]=(Math.random()-.5)*20}
+dg.setAttribute('position',new THREE.BufferAttribute(dp,3));const dust=new THREE.Points(dg,new THREE.PointsMaterial({color:0xc9a8ff,size:.035,transparent:true,opacity:.55,depthWrite:false}));scene.add(dust);
+
+/* state + interaction */
+let rot=0,focus=-1,page=false,idle=0,down=null,drag=false,k=1;
+const camT=new THREE.Vector3(),lkT=new THREE.Vector3(),look=new THREE.Vector3(0,1.4,2),ray=new THREE.Raycaster(),m2=new THREE.Vector2();
+const $=id=>document.getElementById(id);
+function resize(){const w=innerWidth,h=innerHeight;renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(w,h,false);cam.aspect=w/h;k=Math.max(1,1.78/cam.aspect);cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();cam.position.set(0,2.7,12.6*k);
+function pick(x,y){m2.set(x/innerWidth*2-1,-(y/innerHeight)*2+1);ray.setFromCamera(m2,cam);const h=ray.intersectObjects(ring.children,true)[0];if(!h)return -1;let o=h.object;while(o&&o.userData.idx==null)o=o.parent;return o?o.userData.idx:-1}
+function setHint(){const h=$('hint');h.classList.toggle('off',page);h.textContent=focus<0?'CLICK A FRAGRANCE TO APPROACH':'CLICK AGAIN FOR DETAILS'}
+function openPage(i){const d=DATA[i];page=true;$('pn').textContent=d.n;$('pt').textContent=d.t;$('pd').textContent=d.d;$('pp').textContent=d.p;$('pl').innerHTML=['TOP','HEART','BASE'].map((l,j)=>`<dt>${l}</dt><dd>${d.notes[j]}</dd>`).join('');$('panel').classList.add('on');setHint()}
+function closePage(){page=false;$('panel').classList.remove('on');setHint()}
+cv.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,px:e.clientX};drag=false});
+addEventListener('pointermove',e=>{if(down){if(Math.abs(e.clientX-down.x)>6)drag=true;if(drag&&focus<0&&!page){rot+=(e.clientX-down.px)*.006;idle=2}down.px=e.clientX}else cv.style.cursor=pick(e.clientX,e.clientY)>=0?'pointer':'default'});
+addEventListener('pointerup',e=>{if(!down)return;const was=drag;down=null;drag=false;if(was||page)return;const i=pick(e.clientX,e.clientY);
+ if(i>=0){if(focus===i)openPage(i);else focus=i}else if(focus>=0)focus=-1;setHint()});
+$('back').onclick=closePage;
+addEventListener('keydown',e=>{if(e.key==='Escape'){if(page)closePage();else{focus=-1;setHint()}}});
+
+let last=performance.now(),T=0;
+function loop(now){const dt=Math.min(.05,(now-last)/1000);last=now;T+=dt;
+ if(focus<0){if(!down){idle-=dt;if(idle<=0)rot+=dt*.16}}
+ else{const tg=-focus/N*Math.PI*2;let d=((tg-rot)%(Math.PI*2)+Math.PI*3)%(Math.PI*2)-Math.PI;rot+=d*Math.min(1,dt*3.2)}
+ ring.rotation.y=rot;const f=focus>=0;
+ camT.set(page?1.15:0,f?2.05:2.7,f?7.9:12.6*k);lkT.set(page?1.15:0,f?1.85:1.4,f?4.6:2);
+ cam.position.lerp(camT,Math.min(1,dt*2.6));look.lerp(lkT,Math.min(1,dt*2.6));cam.lookAt(look);
+ items.forEach((it,i)=>{if(i===focus)it.b.rotation.y+=dt*(page?.3:.6);else{let y=((it.b.rotation.y+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;it.b.rotation.y=y*(1-Math.min(1,dt*3))}
+  it.glow.material.emissiveIntensity+=((i===focus?2.2:.5)-it.glow.material.emissiveIntensity)*Math.min(1,dt*4)});
+ dust.rotation.y+=dt*.015;dust.position.y=Math.sin(T*.3)*.15;
+ renderer.render(scene,cam);requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+</script></body></html>
