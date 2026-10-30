@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Entrance</title>
+<style>
+:root{--fg:#f3e6f5;--bg:#05030e;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--fg:#f3e6f5;--bg:#05030e}}
+:root[data-theme="dark"]{--fg:#f3e6f5;--bg:#05030e}
+html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;color:var(--fg);font-family:"Helvetica Neue",Arial,sans-serif;cursor:pointer}
+#stage{position:fixed;inset:0;background:linear-gradient(#4a3566,#07081a)}
+#stage.hold{animation:br 5s ease-in-out infinite}
+#stage.shake{animation:sh .28s linear}
+@keyframes br{50%{transform:translateY(-3px)}}
+@keyframes sh{0%{transform:translate(0,0)}20%{transform:translate(-7px,4px)}40%{transform:translate(6px,-5px)}60%{transform:translate(-4px,3px)}80%{transform:translate(3px,-2px)}100%{transform:translate(0,0)}}
+video,#snap{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+body.fit video,body.fit #snap{object-fit:contain;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 7%,#000 93%,transparent)}
+#snap{opacity:0;pointer-events:none}
+.vig{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 60%,rgba(5,3,14,.5) 100%)}
+.flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .45s}
+.flash.on{opacity:.22;transition:none}
+.hint{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 3.4vh);text-align:center;font-size:clamp(10px,.8vw,15px);letter-spacing:.35em;pointer-events:none;transition:opacity .8s;text-shadow:0 0 12px rgba(0,0,0,.6)}
+.hint b{display:block;font-weight:400;animation:p 2.2s ease-in-out infinite}
+.dots{margin-top:1.4vh}
+.dots span{display:inline-block;width:.55vw;height:.55vw;min-width:7px;min-height:7px;margin:0 .35vw;border-radius:50%;border:1px solid rgba(255,225,240,.75);transition:background .3s,box-shadow .3s}
+.dots span.on{background:#ffd9ea;box-shadow:0 0 10px #ffb3d6}
+.hint.off,.hint.wait{opacity:0}
+@keyframes p{50%{opacity:.35}}
+.cta{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0px) + 7vh);transform:translate(-50%,12px);opacity:0;pointer-events:none;transition:opacity 1.2s,transform 1.2s,background .3s;padding:1.1vh 2.8vw;border:1px solid rgba(255,225,240,.8);background:rgba(20,10,40,.35);backdrop-filter:blur(6px);color:var(--fg);letter-spacing:.35em;font-size:clamp(11px,.85vw,16px);cursor:pointer}
+.cta.show{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.cta:hover{background:rgba(255,200,230,.22)}
+#load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);letter-spacing:.4em;font-size:clamp(10px,.8vw,15px);transition:opacity .9s;pointer-events:none}
+#load.off{opacity:0}
+#load i{display:block;width:12vw;height:1px;margin:2vh auto 0;background:linear-gradient(90deg,transparent,#ffd9ea,transparent);animation:p 1.4s ease-in-out infinite}
+#veil{position:fixed;inset:0;background:var(--bg);opacity:0;pointer-events:none;transition:opacity 1.2s}
+#veil.on{opacity:1}
+</style></head><body>
+<div id="stage"><video id="v" muted playsinline preload="auto"></video><canvas id="snap" width="1280" height="720"></canvas></div>
+<div class="vig"></div><div class="flash" id="fl"></div>
+<div class="hint wait" id="hint"><b>TAP THE BOTTLE</b><div class="dots" id="dots"><span></span><span></span><span></span><span></span><span></span></div></div>
+<button class="cta" id="cta">ENTER</button>
+<div id="load"><div>LOADING<i></i></div></div>
+<div id="veil"></div>
+<script>
+const SRC='/_blob/01b32c6c41a0864de9499a9fe0b380e8';
+const ENTER_URL='';                 // put your website address here
+const HITS=5;                       // taps needed to break the bottle
+const IDLE_END=1.25;                // bottle idle loop: 0s to this second
+const STOPS=[2.0,2.75,3.5,4.4];     // where the video pauses after taps 1 to 4
+const $=id=>document.getElementById(id),v=$('v'),sn=$('snap'),sc=sn.getContext('2d'),stage=$('stage'),hint=$('hint'),cta=$('cta');
+const dots=[...document.querySelectorAll('#dots span')];
+let hits=0,mode='load',stopAt=0,ready=false,holdFrom=0;
+function fit(){document.body.classList.toggle('fit',innerWidth/innerHeight<1.2)}addEventListener('resize',fit);fit();
+
+function snap(){try{sc.drawImage(v,0,0,1280,720);sn.style.transition='none';sn.style.opacity=1;requestAnimationFrame(()=>requestAnimationFrame(()=>{sn.style.transition='opacity .4s';sn.style.opacity=0}))}catch(e){}}
+function start(){if(ready)return;ready=true;v.currentTime=0;v.play().catch(()=>{});mode='idle';$('load').classList.add('off');hint.classList.remove('wait');stage.classList.add('hold')}
+v.addEventListener('canplaythrough',start,{once:true});
+v.addEventListener('canplay',()=>setTimeout(start,7000),{once:true});
+v.addEventListener('error',()=>{$('load').firstElementChild.textContent='VIDEO FAILED TO LOAD'});
+v.addEventListener('ended',()=>{mode='end';setTimeout(()=>cta.classList.add('show'),700)});
+v.src=SRC;v.load();
+
+function tap(){
+ if(!ready||mode==='end'||hits>=HITS)return;
+ hits++;dots.forEach((d,i)=>d.classList.toggle('on',i<hits));
+ stage.classList.remove('shake');void stage.offsetWidth;stage.classList.add('shake');
+ const f=$('fl');f.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>f.classList.remove('on')));
+ if(mode==='idle'){snap();v.currentTime=IDLE_END-.05}
+ v.muted=false;v.playbackRate=1;stopAt=hits>=HITS?1e9:STOPS[hits-1];mode='play';stage.classList.remove('hold');v.play().catch(()=>{});
+ if(hits>=HITS)hint.classList.add('off')}
+addEventListener('pointerdown',e=>{if(e.target===cta)return;tap()});
+addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();tap()}});
+cta.onclick=e=>{e.stopPropagation();const vl=$('veil');vl.classList.add('on');setTimeout(()=>{if(ENTER_URL)location.href=ENTER_URL;else vl.classList.remove('on')},1300)};
+
+(function tick(){
+ if(mode==='idle'&&v.currentTime>=IDLE_END){snap();v.currentTime=0;v.play().catch(()=>{})}
+ else if(mode==='play'&&v.currentTime>=stopAt){mode='hold';holdFrom=v.currentTime;v.playbackRate=.25;stage.classList.add('hold')}
+ else if(mode==='hold'&&v.currentTime>=holdFrom+.4){snap();v.currentTime=holdFrom;v.play().catch(()=>{})}
+ if(hits>=HITS&&v.currentTime>8.2)cta.classList.add('show');
+ if(hits>=HITS){if(v.currentTime>9&&v.playbackRate>.5)v.playbackRate=.5;if(v.currentTime>=9.9){snap();v.currentTime=8.2;v.play().catch(()=>{})}}
+ requestAnimationFrame(tick)})();
+</script></body></html>
