@@ -88,6 +88,13 @@ button:focus-visible,.unit:focus-visible{outline:2px solid var(--pearl);outline-
 .unit::after{display:block!important;border-color:rgba(198,205,226,.34);box-shadow:0 0 16px rgba(200,210,235,.12),inset 0 0 12px rgba(200,210,235,.08)}
 .dome{filter:drop-shadow(0 0 7px rgba(220,226,245,.12))}
 #dp{stroke:rgba(242,245,255,.72);stroke-width:1.5}
+
+/* REAL VIDEO SMOKE + RECOLOR LAYERS */
+.smoke-video{position:absolute;z-index:4;left:50%;bottom:5%;width:178%;height:132%;object-fit:contain;transform:translateX(-50%);opacity:0;pointer-events:none;mix-blend-mode:screen;filter:sepia(1) saturate(4.8) hue-rotate(var(--smoke-hue,225deg)) brightness(1.16) contrast(1.08);transition:opacity .65s ease;will-change:transform,opacity}
+.unit[data-slot="0"] .smoke-video{opacity:.88}
+.unit.open .smoke-video{width:238%;height:178%;bottom:-8%;animation:smokeEscape 5.2s cubic-bezier(.18,.65,.25,1) forwards}
+@keyframes smokeEscape{0%{transform:translateX(-50%) scale(.82);opacity:.96}22%{opacity:.94}100%{transform:translateX(-50%) scale(1.72);opacity:0}}
+.unit.open .mist,.unit .mist{opacity:0!important}
 </style></head><body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
 <linearGradient id="gl" x1="0" x2="1"><stop offset="0" stop-color="#cfd3ee" stop-opacity=".5"/><stop offset=".2" stop-color="#cfd3ee" stop-opacity=".07"/><stop offset=".8" stop-color="#b8a8ee" stop-opacity=".05"/><stop offset="1" stop-color="#d9dcf5" stop-opacity=".45"/></linearGradient>
@@ -148,11 +155,13 @@ const $=s=>document.querySelector(s),sc=$("#scene"),det=$("#det"),still=matchMed
 const slug=p=>p.n.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g,"-");
 let act=0,isOpen=false,busy=false,mode="stage",saved=0,sp=0,lastAct=-1,tp=0,vel=0,ty=null,steam=0,pl=0;const units=[],cb=[];
 P.forEach((p,i)=>{const u=document.createElement("div");u.className="unit";u.style.setProperty("--sm",p.sm);u.tabIndex=0;u.setAttribute("role","button");u.setAttribute("aria-label",p.n);
- u.innerHTML=`<div class="ped"></div><i class="mist"></i><img class="bot" alt=""><svg class="dome"><use href="#dm"/></svg>`;
+ u.innerHTML=`<div class="ped"></div><i class="mist"></i><img class="bot" alt=""><video class="smoke-video" muted playsinline preload="metadata"></video><svg class="dome"><use href="#dm"/></svg>`;u.style.setProperty("--smoke-hue",["225deg","300deg","178deg"][i]);
  u.onclick=()=>{if(i===act&&isOpen)location.hash=slug(P[i])};u.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(i)}};sc.appendChild(u);units.push(u);
  fit(svgBottle(p.shape,p.c)).then(s=>u.querySelector(".bot").src=s);
  const b=document.createElement("button");b.type="button";b.textContent=p.cat;b.onclick=()=>{tp=(i+.55)/3};$("#cats").appendChild(b);cb.push(b)});
-function layout(){units.forEach((u,i)=>{u.dataset.slot=(i-act+3)%3;u.classList.toggle("open",i===act&&isOpen)});cb.forEach((b,i)=>b.classList.toggle("on",i===act))}
+const SMOKE_INSIDE="https://raw.githubusercontent.com/flowrian2026-max/Midnight-file-test/main/smoke-references/Untitled%20video.mp4";
+const SMOKE_RELEASE="https://raw.githubusercontent.com/flowrian2026-max/Midnight-file-test/main/smoke-references/Untitled%20video%20(1).mp4";
+function layout(){units.forEach((u,i)=>{const active=i===act,opened=active&&isOpen;u.dataset.slot=(i-act+3)%3;u.classList.toggle("open",opened);const v=u.querySelector(".smoke-video");if(active){const src=opened?SMOKE_RELEASE:SMOKE_INSIDE;if(v.dataset.src!==src){v.dataset.src=src;v.src=src;v.load();}v.loop=!opened;if(opened){try{v.currentTime=0}catch(e){}}v.play().catch(()=>{});}else{v.pause();}});cb.forEach((b,i)=>b.classList.toggle("on",i===act))}
 function pick(i){if(mode==="detail"||busy)return;
  if(i!==act){busy=true;isOpen=false;layout();setTimeout(()=>{act=i;layout();setTimeout(()=>{isOpen=true;layout();spawn(30,1);busy=false},1000)},450)}
  else if(!isOpen){isOpen=true;layout();spawn(30,1)}
@@ -172,15 +181,14 @@ function sprite(r,g,b){const s=128,c=document.createElement("canvas");c.width=c.
 const S=[sprite(236,228,255),sprite(160,130,255)],cv=$("#fx"),x=cv.getContext("2d"),K=.75;let W,H,pf=[],dust=[],pet=[];
 function size(){W=cv.width=innerWidth*K;H=cv.height=innerHeight*K;dust=Array.from({length:60},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.4,s:Math.random()*.25+.05,a:Math.random()*6}));pet=Array.from({length:12},()=>({x:Math.random()*W,y:Math.random()*H,s:Math.random()*.4+.15,a:Math.random()*6,z:Math.random()*2.5+2}))}
 size();addEventListener("resize",size);
-function spawn(n,b){if(still)return;const r=units[act].getBoundingClientRect(),w=r.width*K,x0=(r.left+r.width/2)*K,y0=(r.top+r.height*.84)*K;
- for(let i=0;i<n;i++)pf.push({x:x0+(Math.random()-.5)*w*.7,y:y0+(Math.random()-.5)*w*.04,vx:(Math.random()-.5)*(b?1.8:.5),vy:-(Math.random()*.7+.25)*(b?1.4:1)*w/190,r:w*(.07+Math.random()*.07),g:w*.0005*(1+Math.random()),a:Math.random()*6,rot:Math.random()*6,vr:(Math.random()-.5)*.01,l:1,s:Math.random()<.55?0:1})}
+function spawn(n,b){/* Video smoke layers now handle the reveal; no synthetic particle smoke. */}
 function frame(t){x.clearRect(0,0,W,H);x.globalCompositeOperation="screen";
  if(steam>.45&&Math.random()<.01)spawn(1,0);
  pf.forEach(p=>{p.x+=p.vx+Math.sin(t*.0012+p.a)*.35;p.y+=p.vy;p.vx*=.995;p.r+=p.g;p.rot+=p.vr;p.l-=.0035;
   x.save();x.translate(p.x,p.y);x.rotate(p.rot);x.globalAlpha=Math.max(0,Math.min(1,(1-p.l)*10)*p.l)*.38;x.drawImage(S[p.s],-p.r,-p.r,p.r*2,p.r*2);x.restore()});
- drawPlumes(t);pf=pf.filter(p=>p.l>0);
+ /* real video smoke replaces legacy sprite plumes */ pf=[];
  dust.forEach(d=>{d.y-=d.s;d.x+=Math.sin(t*.0006+d.a)*.12;if(d.y<-4){d.y=H+4;d.x=Math.random()*W}x.globalAlpha=.2+.4*Math.sin(t*.0014+d.a)**2;x.fillStyle="#d9d4ff";x.beginPath();x.arc(d.x,d.y,d.r,0,6.3);x.fill()});
- pet.forEach(p=>{p.y+=p.s;p.x+=Math.sin(t*.0008+p.a)*.5;if(p.y>H+10){p.y=-10;p.x=Math.random()*W}x.save();x.translate(p.x,p.y);x.rotate(t*.001+p.a);x.globalAlpha=.3;x.fillStyle="#9a7bff";x.beginPath();x.ellipse(0,0,p.z,p.z*.45,0,0,6.3);x.fill();x.restore()});
+ /* old purple decorative smoke particles removed */
  requestAnimationFrame(frame)}
 /* natural smoke: a real smoke photo, tinted per perfume, waved in strips, drawn with screen blend */
 const SM=new Image();let TS=[],plumes=[];
