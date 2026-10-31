@@ -137,7 +137,7 @@ function animate(){
 }
 animate();
 function openDetail(id){
- const p=products[id];activeDetail=id;detailScene.id=id;detailScene.open=true;detailScene.group.clear();makeBottle(detailScene.group,id,1.08);detailScene.dome.visible=false;
+ const p=products[id];activeDetail=id;detailScene.id=id;detailScene.open=true;detailScene.group.clear();makeBottle(detailScene.group,id,1.08);detailScene.dome=makeDome(detailScene.group);detailScene.dome.visible=true;detailScene.open=true;
  document.getElementById('dHouse').textContent=p.house;document.getElementById('dName').textContent=p.name;document.getElementById('dDesc').textContent=p.desc;document.getElementById('dTop').textContent=p.top;document.getElementById('dHeart').textContent=p.heart;document.getElementById('dBase').textContent=p.base;
  const d=document.getElementById('detail');d.classList.add('open');d.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';
 }
