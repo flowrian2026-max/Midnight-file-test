@@ -44,6 +44,15 @@ h1 em{font-weight:400;color:#a9a2c7}
 .stage-frame img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 28px 38px rgba(0,0,0,.5));position:relative;z-index:2}
 .image-plinth{position:absolute;bottom:8%;left:8%;right:8%;height:13%;border-radius:50%;background:radial-gradient(ellipse,rgba(157,145,190,.24),rgba(26,23,37,.12) 48%,transparent 72%);filter:blur(9px)}
 .stage-caption{position:absolute;right:0;bottom:9%;writing-mode:vertical-rl;color:#817c91;font-size:8px;letter-spacing:.35em}
+/* Neutral smoke footage is tinted independently from the fragrance bottle */
+.smoke-layer{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;opacity:.72;mix-blend-mode:screen;--smoke-hue:250deg}
+.smoke-layer video{position:absolute;width:100%;height:100%;inset:0;object-fit:contain;filter:sepia(1) saturate(2.8) hue-rotate(var(--smoke-hue)) brightness(1.18);mix-blend-mode:screen}
+.smoke-inside{opacity:.48;transform:scale(1.06);animation:smokeDrift 12s ease-in-out infinite alternate}
+.smoke-release{opacity:0;transform:scale(.72);transition:opacity .35s,transform 1.8s cubic-bezier(.16,.7,.2,1)}
+.stage.releasing .smoke-release{opacity:.9;transform:scale(1.18)}
+@keyframes smokeDrift{from{transform:translate3d(-1.5%,1%,0) scale(1.02)}to{transform:translate3d(1.5%,-1%,0) scale(1.12)}}
+@media(max-width:600px){.smoke-layer{inset:4% -12%;}.smoke-layer video{object-fit:contain}.smoke-inside{opacity:.4}.stage.releasing .smoke-release{opacity:.78}}
+
 .stage-number{position:absolute;left:3%;top:13%;font:400 15px var(--serif);color:rgba(218,210,231,.6)}
 .stage-name{position:absolute;bottom:2%;left:50%;transform:translateX(-50%);width:100%;text-align:center;z-index:3}
 .stage-name small{display:block;color:var(--violet);font-size:8px;letter-spacing:.32em;margin-bottom:7px}
@@ -108,6 +117,10 @@ footer{padding:28px 8vw;display:flex;justify-content:space-between;border-top:1p
   <div class="stage" aria-live="polite">
     <div class="stage-halo"></div><div class="image-plinth"></div>
     <div class="stage-frame" id="stageFrame"><img id="heroImage" src="https://vader-prod.s3.amazonaws.com/1729789020-square-02-671a7c49c83ac.jpg" alt="Baccarat Rouge 540 perfume bottle"></div>
+    <div class="smoke-layer" id="smokeLayer" aria-hidden="true">
+      <video class="smoke-inside" id="smokeInside" autoplay muted loop playsinline preload="auto"><source src="smoke-references/Untitled%20video.mp4" type="video/mp4"></video>
+      <video class="smoke-release" id="smokeRelease" muted playsinline preload="auto"><source src="smoke-references/Untitled%20video%20(1).mp4" type="video/mp4"></video>
+    </div>
     <div class="stage-number" id="stageNumber">01 — 05</div>
     <div class="stage-caption">THE FRAGRANCE EDIT · 2026</div>
     <div class="stage-name"><small id="heroBrand">MAISON FRANCIS KURKDJIAN</small><strong id="heroName">Baccarat Rouge 540</strong></div>
@@ -129,15 +142,16 @@ footer{padding:28px 8vw;display:flex;justify-content:space-between;border-top:1p
 <div class="toast" id="toast" role="status"></div>
 <script>
 const fragrances=[
- {brand:"MAISON FRANCIS KURKDJIAN",name:"Baccarat Rouge 540",type:"EAU DE PARFUM · 70 ML",image:"https://vader-prod.s3.amazonaws.com/1729789020-square-02-671a7c49c83ac.jpg",alt:"Baccarat Rouge 540 bottle",desc:"A luminous, unmistakable signature where airy jasmine and saffron meet a warm amberwood trail. Radiant, refined and quietly unforgettable.",notes:[["TOP","Saffron"],["HEART","Jasmine"],["BASE","Amberwood"]]},
- {brand:"DIOR",name:"Sauvage EDP",type:"EAU DE PARFUM · 100 ML",image:"https://www.gadgetsonline.co.nz/cdn/shop/files/dramatic_perfume_bottle_on_wet_stone.webp?v=1781825996&width=1254",alt:"Dior Sauvage bottle",desc:"A bold contrast of vivid bergamot and warm, enveloping woods. A modern composition with a fresh opening and a deep, sensual finish.",notes:[["TOP","Bergamot"],["HEART","Lavender"],["BASE","Vanilla"]]},
- {brand:"TOM FORD",name:"Velvet Orchid",type:"EAU DE PARFUM · 50 ML",image:"https://www.myperfumeshop.co.nz/cdn/shop/files/tom-ford-velvet-orchid-edp-perfume-for-her-274217.jpg?v=1702394884&width=2000",alt:"Tom Ford Velvet Orchid bottle",desc:"A lush floral amber with a dark, velvety character. Citrus and honey facets unfold into a richly textured floral heart and warm woods.",notes:[["TOP","Citrus"],["HEART","Orchid"],["BASE","Vetiver"]]},
- {brand:"YVES SAINT LAURENT",name:"Libre EDP",type:"EAU DE PARFUM · 90 ML",image:"https://media.ulta.com/i/ulta/2553366?fmt=auto&h=800&w=800",alt:"Yves Saint Laurent Libre bottle",desc:"A confident meeting of French lavender and Moroccan orange blossom, softened by musk and warm vanilla.",notes:[["TOP","Mandarin"],["HEART","Lavender"],["BASE","Vanilla"]]},
- {brand:"INITIO PARFUMS PRIVÉS",name:"Oud for Greatness",type:"EAU DE PARFUM · 90 ML",image:"https://arvellafragrance.com/cdn/shop/files/make-the-fragrance-look-desirable-dark-m_EdGSR-lTVeGW1BFurUcD9A_ZfY5mqp1Sw-D_PrnUKiOFg_hd_1.png?v=1779742238&width=1024",alt:"Initio dark perfume bottle",desc:"A rich, assertive oud composition with saffron and aromatic depth. Dark, textured and made to leave a memorable trail.",notes:[["TOP","Saffron"],["HEART","Oud"],["BASE","Patchouli"]]}
+ {smokeHue:"258deg",brand:"MAISON FRANCIS KURKDJIAN",name:"Baccarat Rouge 540",type:"EAU DE PARFUM · 70 ML",image:"https://vader-prod.s3.amazonaws.com/1729789020-square-02-671a7c49c83ac.jpg",alt:"Baccarat Rouge 540 bottle",desc:"A luminous, unmistakable signature where airy jasmine and saffron meet a warm amberwood trail. Radiant, refined and quietly unforgettable.",notes:[["TOP","Saffron"],["HEART","Jasmine"],["BASE","Amberwood"]]},
+ {smokeHue:"198deg",brand:"DIOR",name:"Sauvage EDP",type:"EAU DE PARFUM · 100 ML",image:"https://www.gadgetsonline.co.nz/cdn/shop/files/dramatic_perfume_bottle_on_wet_stone.webp?v=1781825996&width=1254",alt:"Dior Sauvage bottle",desc:"A bold contrast of vivid bergamot and warm, enveloping woods. A modern composition with a fresh opening and a deep, sensual finish.",notes:[["TOP","Bergamot"],["HEART","Lavender"],["BASE","Vanilla"]]},
+ {smokeHue:"310deg",brand:"TOM FORD",name:"Velvet Orchid",type:"EAU DE PARFUM · 50 ML",image:"https://www.myperfumeshop.co.nz/cdn/shop/files/tom-ford-velvet-orchid-edp-perfume-for-her-274217.jpg?v=1702394884&width=2000",alt:"Tom Ford Velvet Orchid bottle",desc:"A lush floral amber with a dark, velvety character. Citrus and honey facets unfold into a richly textured floral heart and warm woods.",notes:[["TOP","Citrus"],["HEART","Orchid"],["BASE","Vetiver"]]},
+ {smokeHue:"278deg",brand:"YVES SAINT LAURENT",name:"Libre EDP",type:"EAU DE PARFUM · 90 ML",image:"https://media.ulta.com/i/ulta/2553366?fmt=auto&h=800&w=800",alt:"Yves Saint Laurent Libre bottle",desc:"A confident meeting of French lavender and Moroccan orange blossom, softened by musk and warm vanilla.",notes:[["TOP","Mandarin"],["HEART","Lavender"],["BASE","Vanilla"]]},
+ {smokeHue:"225deg",brand:"INITIO PARFUMS PRIVÉS",name:"Oud for Greatness",type:"EAU DE PARFUM · 90 ML",image:"https://arvellafragrance.com/cdn/shop/files/make-the-fragrance-look-desirable-dark-m_EdGSR-lTVeGW1BFurUcD9A_ZfY5mqp1Sw-D_PrnUKiOFg_hd_1.png?v=1779742238&width=1024",alt:"Initio dark perfume bottle",desc:"A rich, assertive oud composition with saffron and aromatic depth. Dark, textured and made to leave a memorable trail.",notes:[["TOP","Saffron"],["HEART","Oud"],["BASE","Patchouli"]]}
 ];
 let active=0;
 const $=id=>document.getElementById(id);
-function selectFragrance(i){active=i;const d=fragrances[i],frame=$("stageFrame");frame.classList.add("switching");setTimeout(()=>{const img=$("heroImage");img.src=d.image;img.alt=d.alt;$("heroBrand").textContent=d.brand;$("heroName").textContent=d.name;$("count").textContent=String(i+1).padStart(2,"0")+" / 05";$("stageNumber").textContent=String(i+1).padStart(2,"0")+" — 05";frame.classList.remove("switching")},240);document.querySelectorAll(".product").forEach((el,j)=>el.classList.toggle("active",j===i))}
+$("smokeLayer").style.setProperty("--smoke-hue",fragrances[0].smokeHue);
+function selectFragrance(i){active=i;const d=fragrances[i],frame=$("stageFrame"),stage=document.querySelector(".stage");frame.classList.add("switching");$("smokeLayer").style.setProperty("--smoke-hue",d.smokeHue);stage.classList.remove("releasing");const release=$("smokeRelease");try{release.currentTime=0;release.play()}catch(e){}stage.classList.add("releasing");setTimeout(()=>stage.classList.remove("releasing"),2600);setTimeout(()=>{const img=$("heroImage");img.src=d.image;img.alt=d.alt;$("heroBrand").textContent=d.brand;$("heroName").textContent=d.name;$("count").textContent=String(i+1).padStart(2,"0")+" / 05";$("stageNumber").textContent=String(i+1).padStart(2,"0")+" — 05";frame.classList.remove("switching")},240);document.querySelectorAll(".product").forEach((el,j)=>el.classList.toggle("active",j===i))}
 document.querySelectorAll(".product").forEach(el=>{el.addEventListener("click",()=>selectFragrance(Number(el.dataset.index)));el.addEventListener("dblclick",()=>openDetail(Number(el.dataset.index)))});
 $("heroImage").addEventListener("click",()=>openDetail(active));
 $("stageFrame").style.cursor="pointer";
