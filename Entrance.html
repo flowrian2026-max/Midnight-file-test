@@ -72,7 +72,7 @@ addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){e.preventD
 cta.onclick=e=>{e.stopPropagation();const vl=$('veil');vl.classList.add('on');setTimeout(()=>{if(ENTER_URL)location.href=ENTER_URL;else vl.classList.remove('on')},1300)};
 
 (function tick(){
- if(mode==='idle'&&v.currentTime>=IDLE_END){v.currentTime=0;v.play().catch(()=>{})}
+ if(mode==='idle'&&v.currentTime>=IDLE_END){snap();v.currentTime=0;v.play().catch(()=>{})}
  else if(mode==='play'&&v.currentTime>=stopAt){
    v.pause();v.currentTime=stopAt;mode='hold';stage.classList.add('hold');
  }
