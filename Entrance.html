@@ -41,14 +41,14 @@ body.fit video,body.fit #snap{object-fit:contain;-webkit-mask-image:linear-gradi
 <div id="load"><div>LOADING<i></i></div></div>
 <div id="veil"></div>
 <script>
-const SRC='/_blob/01b32c6c41a0864de9499a9fe0b380e8';
+const SRC='./Entrance.mp4';
 const ENTER_URL='';                 // put your website address here
 const HITS=5;                       // taps needed to break the bottle
 const IDLE_END=1.25;                // bottle idle loop: 0s to this second
 const STOPS=[2.0,2.75,3.5,4.4];     // where the video pauses after taps 1 to 4
 const $=id=>document.getElementById(id),v=$('v'),sn=$('snap'),sc=sn.getContext('2d'),stage=$('stage'),hint=$('hint'),cta=$('cta');
 const dots=[...document.querySelectorAll('#dots span')];
-let hits=0,mode='load',stopAt=0,ready=false,holdFrom=0;
+let hits=0,mode='load',stopAt=0,ready=false,holdFrom=0,holdUntil=0;
 function fit(){document.body.classList.toggle('fit',innerWidth/innerHeight<1.2)}addEventListener('resize',fit);fit();
 
 function snap(){try{sc.drawImage(v,0,0,1280,720);sn.style.transition='none';sn.style.opacity=1;requestAnimationFrame(()=>requestAnimationFrame(()=>{sn.style.transition='opacity .4s';sn.style.opacity=0}))}catch(e){}}
@@ -56,7 +56,7 @@ function start(){if(ready)return;ready=true;v.currentTime=0;v.play().catch(()=>{
 v.addEventListener('canplaythrough',start,{once:true});
 v.addEventListener('canplay',()=>setTimeout(start,7000),{once:true});
 v.addEventListener('error',()=>{$('load').firstElementChild.textContent='VIDEO FAILED TO LOAD'});
-v.addEventListener('ended',()=>{mode='end';setTimeout(()=>cta.classList.add('show'),700)});
+v.addEventListener('ended',()=>{mode='end';stage.classList.remove('hold');setTimeout(()=>cta.classList.add('show'),700)});
 v.src=SRC;v.load();
 
 function tap(){
@@ -64,18 +64,21 @@ function tap(){
  hits++;dots.forEach((d,i)=>d.classList.toggle('on',i<hits));
  stage.classList.remove('shake');void stage.offsetWidth;stage.classList.add('shake');
  const f=$('fl');f.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>f.classList.remove('on')));
- if(mode==='idle'){snap();v.currentTime=IDLE_END-.05}
- v.muted=false;v.playbackRate=1;stopAt=hits>=HITS?1e9:STOPS[hits-1];mode='play';stage.classList.remove('hold');v.play().catch(()=>{});
+ if(mode==='idle'){v.currentTime=IDLE_END}
+ v.muted=false;v.playbackRate=1;stopAt=hits>=HITS?Number.POSITIVE_INFINITY:STOPS[hits-1];mode=hits>=HITS?'final':'play';stage.classList.remove('hold');v.play().catch(()=>{});
  if(hits>=HITS)hint.classList.add('off')}
 addEventListener('pointerdown',e=>{if(e.target===cta)return;tap()});
 addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();tap()}});
 cta.onclick=e=>{e.stopPropagation();const vl=$('veil');vl.classList.add('on');setTimeout(()=>{if(ENTER_URL)location.href=ENTER_URL;else vl.classList.remove('on')},1300)};
 
 (function tick(){
- if(mode==='idle'&&v.currentTime>=IDLE_END){snap();v.currentTime=0;v.play().catch(()=>{})}
- else if(mode==='play'&&v.currentTime>=stopAt){mode='hold';holdFrom=v.currentTime;v.playbackRate=.25;stage.classList.add('hold')}
- else if(mode==='hold'&&v.currentTime>=holdFrom+.4){snap();v.currentTime=holdFrom;v.play().catch(()=>{})}
- if(hits>=HITS&&v.currentTime>8.2)cta.classList.add('show');
- if(hits>=HITS){if(v.currentTime>9&&v.playbackRate>.5)v.playbackRate=.5;if(v.currentTime>=9.9){snap();v.currentTime=8.2;v.play().catch(()=>{})}}
+ if(mode==='idle'&&v.currentTime>=IDLE_END){v.currentTime=0;v.play().catch(()=>{})}
+ else if(mode==='play'&&v.currentTime>=stopAt){
+   mode='hold';holdFrom=stopAt;holdUntil=holdFrom+.42;
+   v.currentTime=holdFrom;v.playbackRate=1;stage.classList.add('hold');
+ }
+ else if(mode==='hold'&&v.currentTime>=holdUntil){
+   v.currentTime=holdFrom;v.play().catch(()=>{});
+ }
  requestAnimationFrame(tick)})();
 </script></body></html>
