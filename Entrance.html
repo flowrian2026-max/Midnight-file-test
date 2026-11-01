@@ -44,15 +44,13 @@ body.fit video,body.fit #snap{object-fit:cover;object-position:center 44%;-webki
 const SRC='./Entrance.mp4';
 const ENTER_URL='';                 // put your website address here
 const HITS=5;                       // taps needed to break the bottle
-const IDLE_END=1.25;                // bottle idle loop: 0s to this second
-const STOPS=[2.0,2.75,3.5,4.4];     // where the video pauses after taps 1 to 4
 const $=id=>document.getElementById(id),v=$('v'),sn=$('snap'),sc=sn.getContext('2d'),stage=$('stage'),hint=$('hint'),cta=$('cta');
 const dots=[...document.querySelectorAll('#dots span')];
 let hits=0,mode='load',stopAt=0,ready=false;
 function fit(){document.body.classList.toggle('fit',innerWidth/innerHeight<1.2)}addEventListener('resize',fit);fit();
 
 function snap(){try{sc.drawImage(v,0,0,1280,720);sn.style.transition='none';sn.style.opacity=1;requestAnimationFrame(()=>requestAnimationFrame(()=>{sn.style.transition='opacity .4s';sn.style.opacity=0}))}catch(e){}}
-function start(){if(ready)return;ready=true;v.currentTime=0;v.play().catch(()=>{});mode='idle';$('load').classList.add('off');hint.classList.remove('wait');stage.classList.add('hold')}
+function start(){if(ready)return;ready=true;v.currentTime=0;v.play().catch(()=>{});mode='play';$('load').classList.add('off');hint.classList.remove('wait')}
 v.addEventListener('canplaythrough',start,{once:true});
 v.addEventListener('canplay',()=>setTimeout(start,7000),{once:true});
 v.addEventListener('error',()=>{$('load').firstElementChild.textContent='VIDEO FAILED TO LOAD'});
@@ -64,17 +62,11 @@ function tap(){
  hits++;dots.forEach((d,i)=>d.classList.toggle('on',i<hits));
  stage.classList.remove('shake');void stage.offsetWidth;stage.classList.add('shake');
  const f=$('fl');f.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>f.classList.remove('on')));
- if(mode==='idle'){v.currentTime=IDLE_END}
- v.muted=false;v.playbackRate=1;stopAt=hits>=HITS?Number.POSITIVE_INFINITY:STOPS[hits-1];mode=hits>=HITS?'final':'play';stage.classList.remove('hold');v.play().catch(()=>{});
+ v.muted=false;v.playbackRate=1;mode=hits>=HITS?'final':'play';v.play().catch(()=>{});
  if(hits>=HITS)hint.classList.add('off')}
 addEventListener('pointerdown',e=>{if(e.target===cta)return;tap()});
 addEventListener('keydown',e=>{if(e.code==='Space'||e.code==='Enter'){e.preventDefault();tap()}});
 cta.onclick=e=>{e.stopPropagation();const vl=$('veil');vl.classList.add('on');setTimeout(()=>{if(ENTER_URL)location.href=ENTER_URL;else vl.classList.remove('on')},1300)};
 
-(function tick(){
- if(mode==='idle'&&v.currentTime>=IDLE_END){v.pause();v.currentTime=IDLE_END;mode='idle-hold';stage.classList.add('hold')}
- else if(mode==='play'&&v.currentTime>=stopAt){
-   v.pause();v.currentTime=stopAt;mode='hold';stage.classList.add('hold');
- }
- requestAnimationFrame(tick)})();
+(function tick(){requestAnimationFrame(tick)})();
 </script></body></html>
