@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths:
+      - "Entrance.html"
+      - "Entrance.mp4"
       - "Showcase.html"
       - "showcase-v2.html"
       - "Scent Scribe, three domes.html"
@@ -35,6 +37,9 @@ jobs:
       - name: Prepare standalone showcase
         run: |
           mkdir -p _site
+          mkdir -p _site/entrance
+          cp Entrance.html _site/entrance/index.html
+          cp Entrance.mp4 _site/entrance/Entrance.mp4
           cp Showcase.html _site/index.html
           cp showcase-v2.html _site/showcase-v2.html
           cp "Scent Scribe, three domes.html" "_site/Scent Scribe, three domes.html"
