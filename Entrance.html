@@ -12,8 +12,8 @@ html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;color:var(--
 #stage.shake{animation:sh .28s linear}
 @keyframes br{50%{transform:translateY(-3px)}}
 @keyframes sh{0%{transform:translate(0,0)}20%{transform:translate(-7px,4px)}40%{transform:translate(6px,-5px)}60%{transform:translate(-4px,3px)}80%{transform:translate(3px,-2px)}100%{transform:translate(0,0)}}
-video,#snap{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-body.fit video,body.fit #snap{object-fit:contain;-webkit-mask-image:linear-gradient(to bottom,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(to bottom,transparent,#000 7%,#000 93%,transparent)}
+video,#snap{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center;display:block}
+body.fit video,body.fit #snap{object-fit:cover;object-position:center 44%;-webkit-mask-image:none;mask-image:none}
 #snap{opacity:0;pointer-events:none}
 .vig{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%,transparent 60%,rgba(5,3,14,.5) 100%)}
 .flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .45s}
@@ -48,7 +48,7 @@ const IDLE_END=1.25;                // bottle idle loop: 0s to this second
 const STOPS=[2.0,2.75,3.5,4.4];     // where the video pauses after taps 1 to 4
 const $=id=>document.getElementById(id),v=$('v'),sn=$('snap'),sc=sn.getContext('2d'),stage=$('stage'),hint=$('hint'),cta=$('cta');
 const dots=[...document.querySelectorAll('#dots span')];
-let hits=0,mode='load',stopAt=0,ready=false,holdFrom=0,holdUntil=0;
+let hits=0,mode='load',stopAt=0,ready=false;
 function fit(){document.body.classList.toggle('fit',innerWidth/innerHeight<1.2)}addEventListener('resize',fit);fit();
 
 function snap(){try{sc.drawImage(v,0,0,1280,720);sn.style.transition='none';sn.style.opacity=1;requestAnimationFrame(()=>requestAnimationFrame(()=>{sn.style.transition='opacity .4s';sn.style.opacity=0}))}catch(e){}}
@@ -74,11 +74,7 @@ cta.onclick=e=>{e.stopPropagation();const vl=$('veil');vl.classList.add('on');se
 (function tick(){
  if(mode==='idle'&&v.currentTime>=IDLE_END){v.currentTime=0;v.play().catch(()=>{})}
  else if(mode==='play'&&v.currentTime>=stopAt){
-   mode='hold';holdFrom=stopAt;holdUntil=holdFrom+.42;
-   v.currentTime=holdFrom;v.playbackRate=1;stage.classList.add('hold');
- }
- else if(mode==='hold'&&v.currentTime>=holdUntil){
-   v.currentTime=holdFrom;v.play().catch(()=>{});
+   v.pause();v.currentTime=stopAt;mode='hold';stage.classList.add('hold');
  }
  requestAnimationFrame(tick)})();
 </script></body></html>
